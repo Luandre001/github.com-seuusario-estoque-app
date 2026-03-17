@@ -1,0 +1,11 @@
+id,nome_produto,descricao,quantidade,dimensoes,categoria,sku
+1,MDF 19mm,Chapa cortada,1,122x23cm,MDF,MDF-19-122X23
+2,MDF 15mm,Chapa inteira,10,275x185cm,MDF,MDF-15-275X185
+3,MDF 18mm,Chapa inteira,5,275x185cm,MDF,MDF-18-275X185
+4,MDP 15mm,Chapa inteira,12,244x122cm,MDP,MDP-15-244X122
+5,Compensado 15mm,Chapa inteira,8,220x160cm,Compensado,COMP-15-220X160
+6,MDF 6mm,Chapa inteira,20,275x185cm,MDF,MDF-06-275X185
+7,MDF 19mm,Retalho,4,60x40cm,MDF,MDF-19-060X040
+8,MDF 19mm,Retalho,2,80x30cm,MDF,MDF-19-080X030
+9,MDP 18mm,Retalho,6,100x50cm,MDP,MDP-18-100X050
+10,MDF 15mm,Retalho,8,90x45cm,MDF,MDF-15-090X045

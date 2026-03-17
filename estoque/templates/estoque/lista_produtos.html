@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Estoque</title>
+  <style>
+  :root { --bg:#f4f6fb; --card:#ffffff; --text:#1f2937; --muted:#6b7280; --primary:#2563eb; --primary-hover:#1d4ed8; --success:#16a34a; --danger:#dc2626; --border:#e5e7eb; }
+  * { box-sizing:border-box; }
+  body{margin:0;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background:var(--bg); color:var(--text);}
+  .container{max-width:960px;margin:28px auto;padding:18px;background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 10px 30px rgba(15,23,42,0.08);}
+  h1{margin:0 0 8px;font-size:1.7rem;}
+  .top-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+  .subtitle{color:var(--muted);margin:0;}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;padding:0.52rem 0.95rem;border-radius:8px;border:1px solid transparent;font-weight:600;text-decoration:none;color:#fff;font-size:0.9rem;cursor:pointer;transition:.2s;}
+  .btn-primary{background:var(--primary);} .btn-primary:hover{background:var(--primary-hover);}
+  .btn-success{background:var(--success);} .btn-success:hover{background:#15803d;}
+  .btn-danger{background:var(--danger);} .btn-danger:hover{background:#b91c1c;}
+  .messages{margin:0 0 16px;display:flex;flex-direction:column;gap:8px;}
+  .message{padding:10px 12px;border-radius:8px;border:1px solid;}
+  .message-success{background:#ecfdf3;color:#065f46;border-color:#bbf7d0;}
+  .message-info{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe;}
+  .message-error{background:#fef2f2;color:#b91c1c;border-color:#fecaca;}
+  .table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
+  table{width:100%;border-collapse:collapse;font-size:0.95rem;}
+  th, td{padding:10px 12px;text-align:left;border-bottom:1px solid #eef2ff;}
+  th{background:#eef4ff;color:#111827;font-weight:700;font-size:.85rem;letter-spacing:.03em;text-transform:uppercase;}
+  tr:hover{background:#f9fbff;}
+  .empty{padding:14px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;color:#475569;}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="top-row">
+    <div>
+      <h1>Estoque de Produtos</h1>
+      <p class="subtitle">Lista de produtos atualizada em tempo real.</p>
+    </div>
+    <div class="actions">
+      <a href="/admin/estoque/produto/add/" class="btn btn-primary">+ Adicionar produto</a>
+      <a href="/admin/" class="btn btn-success">Abrir admin</a>
+      <a href="{% url 'importar_csv' %}" class="btn btn-danger">Importar CSV</a>
+    </div>
+  </div>
+  <form action="{% url 'adicionar_produto' %}" method="post" style="margin-bottom:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;">
+    {% csrf_token %}
+    <input name="nome" placeholder="Nome" required style="padding:8px;border:1px solid #d1d5db;border-radius:8px;"/>
+    <input name="sku" placeholder="SKU" required style="padding:8px;border:1px solid #d1d5db;border-radius:8px;"/>
+    <input name="categoria" placeholder="Categoria" style="padding:8px;border:1px solid #d1d5db;border-radius:8px;"/>
+    <input name="dimensoes" placeholder="Dimensões" style="padding:8px;border:1px solid #d1d5db;border-radius:8px;"/>
+    <input name="quantidade" placeholder="Quantidade" type="number" min="0" style="padding:8px;border:1px solid #d1d5db;border-radius:8px;"/>
+    <input name="preco" placeholder="Preço (ex: 120.00)" style="padding:8px;border:1px solid #d1d5db;border-radius:8px;"/>
+    <button type="submit" class="btn btn-primary" style="margin-left:0;">Salvar produto</button>
+  </form>
+  <div class="messages">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="message message-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  </div>
+  {% if produtos %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Nome</th><th>SKU</th><th>Categoria</th><th>Dimensões</th><th>Quantidade</th><th>Preço (R$)</th><th>Atualizado em</th></tr>
+        </thead>
+        <tbody>
+        {% for prod in produtos %}
+          <tr>
+            <td>{{ prod.nome }}</td>
+            <td>{{ prod.sku }}</td>
+            <td>{{ prod.categoria }}</td>
+            <td>{{ prod.dimensoes }}</td>
+            <td>{{ prod.quantidade }}</td>
+            <td>R$ {{ prod.preco }}</td>
+            <td>{{ prod.atualizado_em|date:"Y-m-d H:i" }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty">
+      Nenhum produto cadastrado. Use o admin para adicionar ou execute o comando de importação.
+    </div>
+  {% endif %}
+</div>
+</body>
+</html>
