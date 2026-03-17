@@ -29,7 +29,6 @@ with st.expander('➕ Adicionar / Atualizar produto (acima da tabela)', expanded
             dimensoes = st.text_input('Dimensões', '')
         with col_a3:
             quantidade = st.number_input('Quantidade', min_value=0, value=1, step=1)
-            preco = st.number_input('Preço (R$)', min_value=0.0, value=0.0, step=0.01, format='%f')
 
         submitted = st.form_submit_button('Salvar produto')
 
@@ -44,7 +43,6 @@ with st.expander('➕ Adicionar / Atualizar produto (acima da tabela)', expanded
                     'categoria': categoria.strip(),
                     'dimensoes': dimensoes.strip(),
                     'quantidade': quantidade,
-                    'preco': preco,
                 }
             )
             if created:
@@ -58,18 +56,38 @@ col1, col2 = st.columns([2, 1])
 with col1:
     st.subheader('Produtos cadastrados')
     produtos_qs = Produto.objects.order_by('-atualizado_em')
-    produtos_df = pd.DataFrame(list(produtos_qs.values('id', 'nome', 'sku', 'categoria', 'dimensoes', 'quantidade', 'preco', 'atualizado_em')))
+    produtos_df = pd.DataFrame(list(produtos_qs.values('id', 'nome', 'sku', 'categoria', 'dimensoes', 'quantidade', 'atualizado_em')))
     if not produtos_df.empty:
         produtos_df['atualizado_em'] = produtos_df['atualizado_em'].dt.strftime('%Y-%m-%d %H:%M:%S')
-        st.dataframe(produtos_df.rename(columns={
+
+        # Extrair espessura de SKU ou dimensões
+        import re
+        def parse_espessura(row):
+            sku = str(row.get('sku', ''))
+            dimensoes = str(row.get('dimensoes', ''))
+            m = re.search(r'([0-9]{2,3})(?:mm|MM|cm|CM)?', sku)
+            if m:
+                ext = m.group(1)
+                if 'cm' in sku.lower():
+                    return ext + 'cm'
+                return ext + 'mm'
+            m = re.search(r'([0-9]{2,3})x', dimensoes)
+            if m:
+                return m.group(1) + 'cm'
+            return ''
+
+        produtos_df['Espessura'] = produtos_df.apply(parse_espessura, axis=1)
+        produtos_df['Categoria por descrição'] = produtos_df['nome']
+
+        display_df = produtos_df.rename(columns={
             'nome': 'Nome',
-            'sku': 'SKU',
             'categoria': 'Categoria',
             'dimensoes': 'Dimensões',
             'quantidade': 'Quantidade',
-            'preco': 'Preço (R$)',
             'atualizado_em': 'Atualizado em',
-        }), width='stretch')
+        })
+        display_df = display_df[['Nome', 'Categoria por descrição', 'Categoria', 'Espessura', 'Dimensões', 'Quantidade', 'Atualizado em']]
+        st.dataframe(display_df, width='stretch')
     else:
         st.info('Nenhum produto cadastrado ainda.')
     if st.button('🔄 Recarregar produtos'):
